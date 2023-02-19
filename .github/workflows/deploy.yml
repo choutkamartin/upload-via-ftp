@@ -1,0 +1,34 @@
+name: Deploy
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Copy repository contents via SCP
+        uses: appleboy/scp-action@master
+        env:
+          HOST: ${{ secrets.SSH_HOST }}
+          USERNAME: ${{ secrets.SSH_USERNAME }}
+          PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          PORT: ${{ secrets.SSH_PORT }}
+        with:
+          source: "."
+          rm: true
+          target: "."
+
+      - name: Executing remote command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          USERNAME: ${{ secrets.SSH_USERNAME }}
+          PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          PORT: ${{ secrets.SSH_PORT }}
+          script: | 
+           touch .env
+           echo TEST >> .env
+           cat .env
